@@ -7,23 +7,38 @@ class Test
 
 public:
 
-    bool test_entries()
+    bool test_options()
     {
-        CommandLineEntries entries;
-        AbortIfNot(entries.add_entry<char>("char_entry", -'a'), false);
-        AbortIfNot(entries.add_entry<short>("int16_entry", -16, ""), false);
-        AbortIfNot(entries.add_entry<int>("int32_entry", -32, ""), false);
-        AbortIfNot(entries.add_entry<long long>("int64_entry", -64, ""), false);
+        CommandLineOptions options;
 
-        AbortIfNot(entries.add_entry<unsigned char>("uchar_entry", 'a', ""), false);
-        AbortIfNot(entries.add_entry<unsigned short>("uint16_entry", 16, ""), false);
-        AbortIfNot(entries.add_entry<unsigned int>("uint32_entry", 32, ""), false);
-        AbortIfNot(entries.add_entry<unsigned long long>("uint64_entry", 64, ""), false);
+        AbortIfNot(options.add_option<bool>("bool_entry", true, "boolean option."),
+            false);
+        AbortIfNot(options.add_option<char>("char_entry", -'a', "character option."),
+            false);
+        AbortIfNot(options.add_option<short>("int16_entry", -16, "int16 option."),
+            false);
+        AbortIfNot(options.add_option<int>("int32_entry", -32, "int32 option."),
+            false);
+        AbortIfNot(options.add_option<long long>("int64_entry", -64, "int64 option."),
+            false);
 
-        AbortIfNot(entries.add_entry<float>("float_entry",  3.14, "" ), false);
-        AbortIfNot(entries.add_entry<double>("double_entry", 2.71, "" ), false);
-        AbortIfNot(entries.add_entry<std::string>("string_entry", "hey", ""), false);
+        AbortIfNot(options.add_option<unsigned char>("uchar_entry", 'a', "unsigned char option."),
+            false);
+        AbortIfNot(options.add_option<unsigned short>("uint16_entry", 16, "unsigned int16 option."),
+            false);
+        AbortIfNot(options.add_option<unsigned int>("uint32_entry", 32, "unsigned int32 option."),
+            false);
+        AbortIfNot(options.add_option<unsigned long long>("uint64_entry", 64, "unsigned int64 option."),
+            false);
 
+        AbortIfNot(options.add_option<float>("float_entry",  3.14, "float option." ),
+            false);
+        AbortIfNot(options.add_option<double>("double_entry", 2.71, "double option." ),
+            false);
+        AbortIfNot(options.add_option<std::string>("string_entry", "hey", "std::string option."),
+            false);
+
+        bool               b;
         char               c;
         short              i16;
         int                i32;
@@ -36,29 +51,31 @@ public:
         double             d;
         std::string        s;
 
-        AbortIfNot(entries.get("char_entry",  c  ), false);
-        AbortIfNot(entries.get("int16_entry", i16), false);
-        AbortIfNot(entries.get("int32_entry", i32), false);
-        AbortIfNot(entries.get("int64_entry", i64), false);
+        AbortIfNot(options.get("bool_entry",  b  ), false);
+        AbortIfNot(options.get("char_entry",  c  ), false);
+        AbortIfNot(options.get("int16_entry", i16), false);
+        AbortIfNot(options.get("int32_entry", i32), false);
+        AbortIfNot(options.get("int64_entry", i64), false);
 
-        AbortIfNot(entries.get("uchar_entry",  uc ), false);
-        AbortIfNot(entries.get("uint16_entry", u16), false);
-        AbortIfNot(entries.get("uint32_entry", u32), false);
-        AbortIfNot(entries.get("uint64_entry", u64), false);
+        AbortIfNot(options.get("uchar_entry",  uc ), false);
+        AbortIfNot(options.get("uint16_entry", u16), false);
+        AbortIfNot(options.get("uint32_entry", u32), false);
+        AbortIfNot(options.get("uint64_entry", u64), false);
 
-        AbortIfNot(entries.get("float_entry",  f), false);
-        AbortIfNot(entries.get("double_entry", d), false);
-        AbortIfNot(entries.get("string_entry", s), false);
+        AbortIfNot(options.get("float_entry",  f), false);
+        AbortIfNot(options.get("double_entry", d), false);
+        AbortIfNot(options.get("string_entry", s), false);
 
+        std::printf("bool_entry   = %s\n",  b ? "true":"false");
         std::printf("char_entry   = %c\n",  c  );
         std::printf("int16_entry  = %d\n",  i16);
         std::printf("int32_entry  = %d\n",  i32);
-        std::printf("int64_entry  = %ld\n", i64);
+        std::printf("int64_entry  = %lld\n", i64);
 
         std::printf("uchar_entry  = %c\n",  uc );
         std::printf("uint16_entry = %u\n",  u16);
         std::printf("uint32_entry = %u\n",  u32);
-        std::printf("uint64_entry = %lu\n", u64);
+        std::printf("uint64_entry = %llu\n", u64);
 
         std::printf("float_entry  = %f\n", f);
         std::printf("double_entry = %f\n", d);
@@ -66,9 +83,10 @@ public:
 
         std::fflush(stdout);
 
-        AbortIfNot(entries.add_entry2("void_entry", ""),
+        AbortIfNot(options.add_option("void_entry", "void option."),
             false);
 
+        options.print("test");
         return true;
     }
 
@@ -91,42 +109,10 @@ public:
     }
 };
 
-struct base
-{
-    virtual ~base() {};
-};
-
-template <class T>
-struct S1 : public base
-{
-    S1(T _value) : value(_value) {}
-
-    T get() {return value;}
-
-    T value;
-};
-
-struct S2
-{
-    S2() : ptr(NULL) {}
-    ~S2() {if (ptr) delete ptr;}
-
-    template <typename T>
-    void func(T value)
-    {
-        ptr = new S1<T>(value);
-    }
-
-    base* ptr;
-};
-
 int main(int argc, char** argv)
 {
-    S2 s2;
-    s2.func<char>(-'a');
-
     Test test;
-    AbortIfNot(test.test_entries(), EXIT_FAILURE);
+    AbortIfNot(test.test_options(), EXIT_FAILURE);
     AbortIfNot(test.test_parser(argc, argv), EXIT_FAILURE);
     return EXIT_SUCCESS;
 }
