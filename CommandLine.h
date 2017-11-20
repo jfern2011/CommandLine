@@ -9,11 +9,9 @@
 #ifndef __CMD_LINE_H__
 #define __CMD_LINE_H__
 
-#include <cstdio>
-#include <map>
 #include <memory>
+#include <map>
 #include <string>
-#include <utility>
 
 #include "abort.h"
 #include "util.h"
@@ -167,6 +165,8 @@ struct is_string<std::string>
  */
 class CommandLineOptions
 {
+    friend class CommandLine;
+
     /**
      * Base class that allows us to polymorphically get the value of
      * an option via the \a type field
@@ -265,7 +265,7 @@ class CommandLineOptions
         T value;
     };
 
-    typedef std::unique_ptr<option_base> option_ptr;
+    typedef std::unique_ptr< option_base > option_ptr;
 
 public:
 
@@ -302,6 +302,10 @@ public:
     bool add_option(const std::string& _name,
         const std::string& desc);
 
+    bool exists(const std::string& _name) const;
+
+    void print(const char* prog_name) const;
+
     /**
      * Retrieve the value of a command line option. Either this is
      * its default or the command line value
@@ -317,26 +321,57 @@ public:
     template<typename T>
     bool get(const std::string& _name, T& value) const
     {
-        std::string name =
-            Util::trim(Util::to_lower(_name));
-
+        std::string name = Util::trim(Util::to_lower(_name) );
         auto iter = _options.find(name);
+
         if (iter == _options.end())
         {
-            std::printf(" no such command line argument '%s' \n ",
+            std::printf(" no such command line option '%s'\n",
                 name.c_str());
             Abort(false);
         }
 
-        const option_ptr& option = iter->second;
+        const option_ptr& option =
+            iter->second;
 
-        value =
-            dynamic_cast<Option<T>*>(option.get())->value;
+        value = dynamic_cast<Option<T>*>
+            (option.get())->value;
 
         return true;
     }
 
-    void print(const char* prog_name) const;
+    /**
+     *  Set the value of a command line option. This normally gets
+     *  done via the command line
+     *
+     * @tparam T The type of the option
+     *
+     * @param[in]  _name The name of the command line option. This
+     *                   is case-insensitive
+     * @param[out] value The value of this option
+     *
+     * @return True on success
+     */
+    template <typename T>
+    bool set(const std::string& _name, const T& value)
+    {
+        std::string name = Util::trim(Util::to_lower(_name) );
+        auto iter = _options.find(name);
+
+        if (iter == _options.end())
+        {
+            std::printf(" no such command line option '%s'\n",
+                name.c_str());
+            Abort(false);
+        }
+
+        option_ptr& option = iter->second;
+
+        dynamic_cast<Option<T>*>
+            (option.get())->value = value;
+            
+        return true;
+    }
 
     CommandLineOptions(const CommandLineOptions& rhs) = delete;
     CommandLineOptions&
@@ -361,13 +396,13 @@ class CommandLine
 
 public:
 
-    CommandLine(const CommandLineOptions& options);
+    CommandLine(CommandLineOptions& options);
     ~CommandLine();
 
     static bool get_opt_val(int argc, char** argv,
                     std::map<std::string,std::string>& opt_val);
 
-    bool parse(int argc, char** argv) const;
+    bool parse(int argc, char** argv);
 
     CommandLine(const CommandLine& rhs) = delete;
     CommandLine&
@@ -375,7 +410,7 @@ public:
 
 private:
 
-    const CommandLineOptions&
+    CommandLineOptions&
         _options;
 
     std::map<std::string,std::string>
