@@ -13,7 +13,6 @@
 #include <map>
 #include <string>
 
-#include "abort.h"
 #include "util.h"
 
 template <typename T>
@@ -239,12 +238,16 @@ class CommandLineOptions
         }
 
         /**
-         * Print the name, the value, and description of this option
-         * to standard output
+         * Print the name, the value, and description of this
+         * option to standard output
          */
         void print() const
         {
-            std::printf("\t--%s=<%s>\n", name.c_str(), type.c_str());
+            if (type == "bool")
+                std::printf("\t--%s=[%s]\n", name.c_str(), type.c_str());
+            else
+                std::printf("\t--%s=<%s>\n", name.c_str(), type.c_str());
+
             std::printf("\t\t%s\n",
                     description.c_str());
         }
@@ -285,8 +288,8 @@ public:
      * @return True on success
      */
     template <typename T>
-    bool add_option(const std::string& _name, const T& default_value,
-                    const std::string& desc)
+    bool add(const std::string& _name, const T& default_value,
+             const std::string& desc="")
     {
         std::string name =
             Util::trim(Util::to_lower(_name));
@@ -294,13 +297,10 @@ public:
         AbortIfNot(_add_option(name), false );
 
         _options[name].reset(
-            new Option<T>(default_value, name, desc));
+                    new Option<T>(default_value, name, desc));
 
         return true;
     }
-
-    bool add_option(const std::string& _name,
-        const std::string& desc);
 
     bool exists(const std::string& _name) const;
 
@@ -369,7 +369,7 @@ public:
 
         dynamic_cast<Option<T>*>
             (option.get())->value = value;
-            
+
         return true;
     }
 
@@ -399,10 +399,31 @@ public:
     CommandLine(CommandLineOptions& options);
     ~CommandLine();
 
-    static bool get_opt_val(int argc, char** argv,
-                    std::map<std::string,std::string>& opt_val);
+    /**
+     * Retrieve the value of a command line option. Either this is
+     * its default or the command line value
+     *
+     * @tparam T The type of the option
+     *
+     * @param[in]  _name The name of the command line option. This
+     *                   is case-insensitive
+     * @param[out] value The value of this option
+     *
+     * @return True on success
+     */
+    template<typename T>
+    bool get(const std::string& _name, T& value) const
+    {
+        AbortIfNot(_options.get<T>(_name, value),
+            false);
+
+        return true;
+    }
 
     bool parse(int argc, char** argv);
+
+    static bool get_opt_val(int argc, char** argv,
+            std::map<std::string,std::string>& opt_val);
 
     CommandLine(const CommandLine& rhs) = delete;
     CommandLine&
@@ -412,9 +433,6 @@ private:
 
     CommandLineOptions&
         _options;
-
-    std::map<std::string,std::string>
-        _opt_to_value;
 };
 
 #endif // __CMD_LINE_H__

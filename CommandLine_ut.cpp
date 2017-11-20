@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 
 #include "CommandLine.h"
 
@@ -11,31 +12,31 @@ public:
     {
         CommandLineOptions options;
 
-        AbortIfNot(options.add_option<bool>("bool_entry", true, "boolean option."),
+        AbortIfNot(options.add<bool>("bool_entry", false, "boolean option."),
             false);
-        AbortIfNot(options.add_option<char>("char_entry", -'a', "character option."),
+        AbortIfNot(options.add<char>("char_entry", -'a', "character option."),
             false);
-        AbortIfNot(options.add_option<short>("int16_entry", -16, "int16 option."),
+        AbortIfNot(options.add<short>("int16_entry", -16, "int16 option."),
             false);
-        AbortIfNot(options.add_option<int>("int32_entry", -32, "int32 option."),
+        AbortIfNot(options.add<int>("int32_entry", -32, "int32 option."),
             false);
-        AbortIfNot(options.add_option<long long>("int64_entry", -64, "int64 option."),
-            false);
-
-        AbortIfNot(options.add_option<unsigned char>("uchar_entry", 'a', "unsigned char option."),
-            false);
-        AbortIfNot(options.add_option<unsigned short>("uint16_entry", 16, "unsigned int16 option."),
-            false);
-        AbortIfNot(options.add_option<unsigned int>("uint32_entry", 32, "unsigned int32 option."),
-            false);
-        AbortIfNot(options.add_option<unsigned long long>("uint64_entry", 64, "unsigned int64 option."),
+        AbortIfNot(options.add<long long>("int64_entry", -64, "int64 option."),
             false);
 
-        AbortIfNot(options.add_option<float>("float_entry",  3.14, "float option." ),
+        AbortIfNot(options.add<unsigned char>("uchar_entry", 'a', "unsigned char option."),
             false);
-        AbortIfNot(options.add_option<double>("double_entry", 2.71, "double option." ),
+        AbortIfNot(options.add<unsigned short>("uint16_entry", 16, "unsigned int16 option."),
             false);
-        AbortIfNot(options.add_option<std::string>("string_entry", "hey", "std::string option."),
+        AbortIfNot(options.add<unsigned int>("uint32_entry", 32, "unsigned int32 option."),
+            false);
+        AbortIfNot(options.add<unsigned long long>("uint64_entry", 64, "unsigned int64 option."),
+            false);
+
+        AbortIfNot(options.add<float>("float_entry",  3.14, "float option." ),
+            false);
+        AbortIfNot(options.add<double>("double_entry", 2.71, "double option." ),
+            false);
+        AbortIfNot(options.add<std::string>("string_entry", "hey", "std::string option."),
             false);
 
         bool               b;
@@ -79,14 +80,181 @@ public:
 
         std::printf("float_entry  = %f\n", f);
         std::printf("double_entry = %f\n", d);
-        std::printf("string_entry = %s\n", s.c_str());
+        std::printf("string_entry = '%s'\n", s.c_str());
 
         std::fflush(stdout);
 
-        AbortIfNot(options.add_option("void_entry", "void option."),
+        options.print("test");
+
+        const char cmdline1[] =
+            "program --bool_entry --char_entry=p --int16_entry=-32768 "
+            "--int32_entry=-2147483648 --uchar_entry=z --uint16_entry=65535 "
+            "--uint32_entry=4294967295 --float_entry=3.1234567 "
+            "--double_entry=4.123456789101112 --string_entry=what's up dude?!";
+
+        Util::str_v tokens;
+        Util::split(cmdline1, tokens);
+
+        char* cmdline_raw[32];
+        for (size_t i = 0; i < tokens.size(); i++)
+        {
+            cmdline_raw[i] = static_cast<char*>(std::malloc(256));
+            std::strcpy(cmdline_raw[i], tokens[i].c_str());
+        }
+
+        CommandLine cmd(options);
+        AbortIfNot(cmd.parse( tokens.size(), cmdline_raw ),
             false);
 
-        options.print("test");
+        for (size_t i = 0; i < tokens.size(); i++)
+            std::free(cmdline_raw[i]);
+
+        /*
+         * Now make sure all the right options were updated:
+         */
+        std::printf("\n");
+        AbortIfNot(cmd.get("bool_entry",  b  ), false);
+        AbortIfNot(cmd.get("char_entry",  c  ), false);
+        AbortIfNot(cmd.get("int16_entry", i16), false);
+        AbortIfNot(cmd.get("int32_entry", i32), false);
+        AbortIfNot(cmd.get("int64_entry", i64), false);
+
+        AbortIfNot(cmd.get("uchar_entry",  uc ), false);
+        AbortIfNot(cmd.get("uint16_entry", u16), false);
+        AbortIfNot(cmd.get("uint32_entry", u32), false);
+        AbortIfNot(cmd.get("uint64_entry", u64), false);
+
+        AbortIfNot(cmd.get("float_entry",  f), false);
+        AbortIfNot(cmd.get("double_entry", d), false);
+        AbortIfNot(cmd.get("string_entry", s), false);
+
+        std::printf("bool_entry   = %s\n",  b ? "true":"false");
+        std::printf("char_entry   = %c\n",  c  );
+        std::printf("int16_entry  = %d\n",  i16);
+        std::printf("int32_entry  = %d\n",  i32);
+        std::printf("int64_entry  = %lld\n", i64);
+
+        std::printf("uchar_entry  = %c\n",  uc );
+        std::printf("uint16_entry = %u\n",  u16);
+        std::printf("uint32_entry = %u\n",  u32);
+        std::printf("uint64_entry = %llu\n", u64);
+
+        std::printf("float_entry  = %0.7f\n", f);
+        std::printf("double_entry = %0.15f\n", d);
+        std::printf("string_entry = '%s'\n", s.c_str());
+
+        std::fflush(stdout);
+
+        char buf1[] = "program";
+        char buf2[] = "--bool_entry=false";
+
+        char* cmdline2[2] = {buf1, buf2};
+
+        AbortIfNot(cmd.parse( 2, cmdline2 ),
+            false);
+
+        /*
+         * Make sure only the boolean entry updated:
+         */
+        std::printf("\n");
+        AbortIfNot(cmd.get("bool_entry",  b  ), false);
+        AbortIfNot(cmd.get("char_entry",  c  ), false);
+        AbortIfNot(cmd.get("int16_entry", i16), false);
+        AbortIfNot(cmd.get("int32_entry", i32), false);
+        AbortIfNot(cmd.get("int64_entry", i64), false);
+
+        AbortIfNot(cmd.get("uchar_entry",  uc ), false);
+        AbortIfNot(cmd.get("uint16_entry", u16), false);
+        AbortIfNot(cmd.get("uint32_entry", u32), false);
+        AbortIfNot(cmd.get("uint64_entry", u64), false);
+
+        AbortIfNot(cmd.get("float_entry",  f), false);
+        AbortIfNot(cmd.get("double_entry", d), false);
+        AbortIfNot(cmd.get("string_entry", s), false);
+
+        std::printf("bool_entry   = %s\n",  b ? "true":"false");
+        std::printf("char_entry   = %c\n",  c  );
+        std::printf("int16_entry  = %d\n",  i16);
+        std::printf("int32_entry  = %d\n",  i32);
+        std::printf("int64_entry  = %lld\n", i64);
+
+        std::printf("uchar_entry  = %c\n",  uc );
+        std::printf("uint16_entry = %u\n",  u16);
+        std::printf("uint32_entry = %u\n",  u32);
+        std::printf("uint64_entry = %llu\n", u64);
+
+        std::printf("float_entry  = %0.7f\n", f);
+        std::printf("double_entry = %0.15f\n", d);
+        std::printf("string_entry = '%s'\n", s.c_str());
+
+        std::fflush(stdout);
+
+        char buf3[] = "program";
+        char buf4[] = "--bool_entry=1";
+
+        char* cmdline3[2] = {buf3, buf4};
+
+        AbortIfNot(cmd.parse( 2, cmdline3 ),
+            false);
+
+        /*
+         * Make sure only the boolean entry updated:
+         */
+        std::printf("\n");
+        AbortIfNot(cmd.get("bool_entry",  b  ), false);
+        AbortIfNot(cmd.get("char_entry",  c  ), false);
+        AbortIfNot(cmd.get("int16_entry", i16), false);
+        AbortIfNot(cmd.get("int32_entry", i32), false);
+        AbortIfNot(cmd.get("int64_entry", i64), false);
+
+        AbortIfNot(cmd.get("uchar_entry",  uc ), false);
+        AbortIfNot(cmd.get("uint16_entry", u16), false);
+        AbortIfNot(cmd.get("uint32_entry", u32), false);
+        AbortIfNot(cmd.get("uint64_entry", u64), false);
+
+        AbortIfNot(cmd.get("float_entry",  f), false);
+        AbortIfNot(cmd.get("double_entry", d), false);
+        AbortIfNot(cmd.get("string_entry", s), false);
+
+        std::printf("bool_entry   = %s\n",  b ? "true":"false");
+        std::printf("char_entry   = %c\n",  c  );
+        std::printf("int16_entry  = %d\n",  i16);
+        std::printf("int32_entry  = %d\n",  i32);
+        std::printf("int64_entry  = %lld\n", i64);
+
+        std::printf("uchar_entry  = %c\n",  uc );
+        std::printf("uint16_entry = %u\n",  u16);
+        std::printf("uint32_entry = %u\n",  u32);
+        std::printf("uint64_entry = %llu\n", u64);
+
+        std::printf("float_entry  = %0.7f\n", f);
+        std::printf("double_entry = %0.15f\n", d);
+        std::printf("string_entry = '%s'\n", s.c_str());
+
+        std::fflush(stdout);
+
+        /*
+         * Check invalid argument:
+         */
+        char buf5[] = "program";
+        char buf6[] = "--blah=1";
+
+        char* cmdline4[2] = {buf5, buf6};
+
+        AbortIf(cmd.parse( 2, cmdline4 ),
+            false);
+
+        /*
+         * The following should fail:
+         */
+        char buf7[] = "program";
+        char buf8[] = "--bool_entry=bluh";
+
+        char* cmdline5[2] = {buf7, buf8};
+
+        AbortIf(cmd.parse( 2, cmdline5 ),
+            false);
+
         return true;
     }
 

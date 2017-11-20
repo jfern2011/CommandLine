@@ -9,61 +9,6 @@
 #include "CommandLine.h"
 
 /**
- * A specialization of \ref Option where the option has no value
- * associated with it
- */
-template<>
-struct CommandLineOptions::Option<void> :
-    public CommandLineOptions::option_base
-{
-    /**
-     * Constructor
-     *
-     * @param[in] _name The option name
-     * @param[in] _desc A description for this option
-     */
-    Option( const std::string& _name, const std::string& _desc )
-        : option_base(),
-          description(_desc), name(_name), value(false)
-    {
-        type = "void";
-    }
-
-    /**
-     * Destructor
-     */
-    ~Option()
-    {
-    }
-
-    /**
-     * Print the name, the value, and description of this option
-     * to standard output
-     */
-    void print() const
-    {
-        std::printf("\t--%s\n", name.c_str());
-        std::printf("\t\t%s\n",
-                description.c_str());
-    }
-
-    /**
-     * A description for this option
-     */
-    std::string description;
-
-    /**
-     * The name of this option
-     */
-    std::string name;
-
-    /**
-     * Set via the command line
-     */
-    bool value;
-};
-
-/**
  * Constructor
  */
 CommandLineOptions::CommandLineOptions()
@@ -78,30 +23,8 @@ CommandLineOptions::~CommandLineOptions()
 }
 
 /**
- * Add a new command line option which is settable via the command
- * line but has no value associated with it
- *
- * @param[in] _name The name of the option to add
- * @param[in] desc  A description for the option
- *
- * @return True on success
- */
-bool CommandLineOptions::add_option(const std::string& _name,
-    const std::string& desc)
-{
-    std::string name =
-        Util::trim(Util::to_lower(_name));
-
-    AbortIfNot(_add_option(name), false );
-
-    _options[name].reset(new Option<void>(name, desc));
-
-    return true;
-}
-
-/**
- * Determine if a command line option exists, namely, if it has
- * been registered with \ref add_option()
+ * Determine if a command line option exists, namely, if it has been
+ * registered with \ref add()
  *
  * @param [in] _name The option to search for
  *
@@ -148,7 +71,8 @@ bool CommandLineOptions::_add_option(const std::string& name) const
 
     if (iter != _options.end())
     {
-        std::printf("duplicate option '%s' \n", name.c_str());
+        std::printf("duplicate option '%s'\n",
+            name.c_str());
         Abort(false);
     }
 
@@ -180,7 +104,7 @@ CommandLine::~CommandLine()
  * @param[in] argc     Number of command line arguments
  * @param[in] argv     The arguments themselves
  * @param[out] opt_val A mapping from command line option to value.
- *                     If, when parsing the command line, the
+ *                     If when parsing the command line the
  *                     value is not found, it is mapped to an empty
  *                     string
  *
