@@ -62,6 +62,11 @@ default value overwritten. Continuing the above example,
      cmd.get("float_option", f);  // float_option should now be 2.71828
      cmd.get("string_option", s); // should still be "hi there"
 
+## Dependencies
+
+This tool reqiures abort.h, types.h, and util.h, which can be obtained
+from my other repos.
+
 ## Contact
 
 Feel free to email me with bug reports or suggestions:

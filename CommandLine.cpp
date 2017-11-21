@@ -207,11 +207,14 @@ bool CommandLine::get_opt_val(int argc, char** argv,
  *  Parse the command line, assigning a value to each command
  *  line option. The command line should have the form:
  *
- * <program_name> --option1=value1 --option2=value2 ...
+ * @verbatim
+   <program_name> --option1=value1 --option2=value2 ...
+   @endverbatim 
  *
  * Note that for boolean options, it is sufficient to write
- * --option without a value. It is understood that value is
- * true in this case
+ * @verbatim --option @endverbatim
+ * without a value. It is understood that value equals true
+ * in this case
  *
  * @param[in] argc The total number of command line arguments
  * @param[in] argv The arguments themselves

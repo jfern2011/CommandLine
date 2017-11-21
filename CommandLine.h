@@ -15,6 +15,8 @@
 
 #include "util.h"
 
+#ifndef DOXYGEN_SKIP
+
 template <typename T>
 struct is_bool
 {
@@ -159,6 +161,8 @@ struct is_string<std::string>
     static const bool value = true;
 };
 
+#endif
+
 /**
  * Class that builds a table of command line options
  */
@@ -195,7 +199,7 @@ class CommandLineOptions
          *
          * @param [in] _default The default value to assign this option
          * @param [in] _name    The option name
-         * @param [in] _desc    A description for this option
+         * @param [in] _desc    A description of this option
          */
         Option(const T& _default, const std::string& _name,
                const std::string& _desc)
@@ -283,7 +287,7 @@ public:
      *
      * @param[in] _name         The name of the option to add
      * @param[in] default_value The default value to assign the option
-     * @param[in] desc          A description for the option
+     * @param[in] desc          A description of the option
      *
      * @return True on success
      */
