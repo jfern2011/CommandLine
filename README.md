@@ -22,9 +22,9 @@ via the command line. For example:
                        "A floating point option.");
      
     /*
-     * Add an option that sets the default value of an integer
+     * Add an option that sets the default value of a std::string
      */
-	options.add<int>("int_option", 0);
+	options.add<std::string>("string_option", "hi there");
 
 ## CommandLine
 
@@ -48,7 +48,7 @@ default value overwritten. Continuing the above example,
      *
      * program_name --some_flag=true --float_option=2.71828
      *
-     * which is also equivalent to
+     * which (by the way) is equivalent to
      *
      * program_name --some_flag=1    --float_option=2.71828
      *
@@ -56,11 +56,11 @@ default value overwritten. Continuing the above example,
      */
      bool b;
      float f;
-     int i;
+     std::string s;
      
-     cmd.get("some_flag", b);    // some_flag should now be true
-     cmd.get("float_option", f); // float_option should now be exp(1)
-     cmd.get("int_option", i);   // int_option should still be 0
+     cmd.get("some_flag", b);     // some_flag should now be true
+     cmd.get("float_option", f);  // float_option should now be 2.71828
+     cmd.get("string_option", s); // should still be "hi there"
 
 ## Contact
 
