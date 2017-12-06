@@ -15,154 +15,6 @@
 
 #include "util.h"
 
-#ifndef DOXYGEN_SKIP
-
-template <typename T>
-struct is_bool
-{
-    static const bool value = false;
-};
-
-template<>
-struct is_bool<bool>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_char
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_char<char>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_int16
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_int16<short>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_int32
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_int32<int>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_int64
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_int64<long long>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_uchar
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_uchar<unsigned char>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_uint16
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_uint16<unsigned short>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_uint32
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_uint32<unsigned int>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_uint64
-{
-    static const bool value = false;
-};
-
-template <>
-struct is_uint64<unsigned long long>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_float
-{
-    static const bool value = false;
-};
-
-template<>
-struct is_float<float>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_double
-{
-    static const bool value = false;
-};
-
-template<>
-struct is_double<double>
-{
-    static const bool value = true;
-};
-
-template <typename T>
-struct is_string
-{
-    static const bool value = false;
-};
-
-template<>
-struct is_string<std::string>
-{
-    static const bool value = true;
-};
-
-#endif
-
 /**
  * Class that builds a table of command line options
  */
@@ -206,29 +58,29 @@ class CommandLineOptions
             : option_base(),
               description(_desc), name(_name), value(_default)
         {
-            if (is_bool<T>::value)
+            if (Util::is_bool<T>::value)
                 type = "bool";
-            else if (is_char<T>::value)
+            else if (  Util::is_char<T>::value)
                 type = "char";
-            else if ( is_int16<T>::value)
+            else if ( Util::is_int16<T>::value)
                 type = "int16";
-            else if ( is_int32<T>::value)
+            else if ( Util::is_int32<T>::value)
                 type = "int32";
-            else if ( is_int64<T>::value)
+            else if ( Util::is_int64<T>::value)
                 type = "int64";
-            else if ( is_uchar<T>::value)
+            else if ( Util::is_uchar<T>::value)
                 type = "uchar";
-            else if (is_uint16<T>::value)
+            else if (Util::is_uint16<T>::value)
                 type = "uint16";
-            else if (is_uint32<T>::value)
+            else if (Util::is_uint32<T>::value)
                 type = "uint32";
-            else if (is_uint64<T>::value)
+            else if (Util::is_uint64<T>::value)
                 type = "uint64";
-            else if ( is_float<T>::value)
+            else if ( Util::is_float<T>::value)
                 type = "float";
-            else if (is_double<T>::value)
+            else if (Util::is_double<T>::value)
                 type = "double";
-            else if (is_string<T>::value)
+            else if (Util::is_string<T>::value)
                 type = "string";
             else
                 type = "";
