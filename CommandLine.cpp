@@ -7,6 +7,7 @@
  */
 
 #include "CommandLine.h"
+#include "types.h"
 
 /**
  * Constructor
@@ -69,12 +70,8 @@ bool CommandLineOptions::_add_option(const std::string& name) const
 
     auto iter = _options.find(name);
 
-    if (iter != _options.end())
-    {
-        std::printf("duplicate option '%s'\n",
-            name.c_str());
-        Abort(false);
-    }
+    AbortIf(iter != _options.end(), false, "duplicate option '%s'",
+        name.c_str());
 
     return true;
 }
@@ -118,7 +115,7 @@ bool CommandLine::get_opt_val(int argc, char** argv,
 
     if (argc < 2) return true;
 
-    Util::str_v tokens;
+    types::str_v tokens;
 
     for (int i = 1; i < argc; i++)
         tokens.push_back(Util::to_lower(Util::trim(argv[i])));
@@ -233,18 +230,13 @@ bool CommandLine::parse(int argc, char** argv)
         auto opt_iter =
             _options._options.find(iter->first);
 
-        if (opt_iter == _options._options.end())
-        {
-            std::printf("unknown option '%s'\n",
-                iter->first.c_str());
-            Abort(false);
-        }
+        AbortIf(opt_iter== _options._options.end(), false,
+            "unknown option '%s'", iter->first.c_str());
 
-        const std::string& type = opt_iter->second->get_type();
+        const std::string& type =
+            opt_iter->second->get_type();
         const std::string& val  =
             Util::to_lower(iter->second);
-
-        bool success = true;
 
         if (type == "bool")
         {
@@ -261,13 +253,12 @@ bool CommandLine::parse(int argc, char** argv)
             else if (val == "false" || val == "0")
                 value = false;
             else
-                success = false;
-
-            if (success)
             {
-                success =
-                    _options.set<bool>(iter->first, value);
+                Abort(false);
             }
+
+            AbortIfNot(_options.set(iter->first, value),
+                false);
         }
         else if (type == "char")
         {
@@ -275,35 +266,29 @@ bool CommandLine::parse(int argc, char** argv)
             if (val.size() == 1)
             {
                 value = val[0];
-                success =
-                    _options.set<char>(iter->first, value);
+                AbortIfNot(_options.set(iter->first,
+                    value), false);
             }
             else
-                success = false;
+            {
+                Abort(false);
+            }
         }
         else if (type == "int16")
         {
-            int temp;
-            success = Util::str_to_i32(val, 10, temp);
+            types::int16 value;
+            AbortIfNot(Util::from_string(val, value), false);
 
-            if (success)
-            {
-                short value = temp;
-
-                success =
-                    _options.set<short>(iter->first, value);
-            }
+            AbortIfNot(_options.set(iter->first, value),
+                false);
         }
         else if (type == "int32")
         {
-            int value;
-            success = Util::str_to_i32(val, 10, value);
+            types::int32 value;
+            AbortIfNot(Util::from_string(val, value), false);
 
-            if (success)
-            {
-                success =
-                    _options.set< int >(iter->first, value);
-            }
+            AbortIfNot(_options.set(iter->first, value),
+                false);
         }
         else if (type == "uchar")
         {
@@ -312,81 +297,55 @@ bool CommandLine::parse(int argc, char** argv)
             if (val.size() == 1)
             {
                 value = val[ 0 ];
-                success =
-                    _options.set<unsigned char>(iter->first, value);
+                AbortIfNot(_options.set(iter->first,value),
+                    false);
             }
             else
-                success = false;
+            {
+                Abort(false);
+            }
         }
         else if (type == "uint16")
         {
-            int temp;
-            success = Util::str_to_i32(val, 10, temp);
+            types::uint16 value;
+            AbortIfNot(Util::from_string(val, value), false);
 
-            if (success)
-            {
-                unsigned short value = temp;
-
-                success =
-                    _options.set<unsigned short>(iter->first,value);
-            }
+            AbortIfNot(_options.set(iter->first, value),
+                false);
         }
         else if (type == "uint32")
         {
-            int temp;
-            success = Util::str_to_i32(val, 10, temp);
+            types::uint32 value;
+            AbortIfNot(Util::from_string(val, value), false);
 
-            if (success)
-            {
-                unsigned int value = temp;
-
-                success =
-                    _options.set<unsigned int >(iter->first, value);
-            }
+            AbortIfNot(_options.set(iter->first, value),
+                false);
         }
         else if (type == "float")
         {
-            double temp;
-            success = Util::str_to_f64(val, temp);
+            float value;
+            AbortIfNot(Util::from_string(val, value), false);
 
-            if (success)
-            {
-                float value = temp;
-
-                success =
-                    _options.set<float >(iter->first, value);
-            }
+            AbortIfNot(_options.set(iter->first, value),
+                false);
         }
         else if (type == "double")
         {
             double value;
-            success = Util::str_to_f64(val, value);
+            AbortIfNot(Util::from_string(val, value), false);
 
-            if (success)
-            {
-                success =
-                    _options.set<double>(iter->first, value);
-            }
+            AbortIfNot(_options.set(iter->first, value),
+                false);
         }
         else if (type == "string")
         {
-            success = _options.set< std::string >
-                (iter->first, val);
+            AbortIfNot(_options.set(iter->first,
+                val), false);
         }
         else
         {
-            std::printf("unsupported type '%s'\n",
+            Abort(false, "unsupported type '%s'",
                 type.c_str());
-            Abort(false);
-        }
-
-        if (!success)
-        {
-            std::printf("unable to parse value '%s' for option "
-                        "'%s'\n",
-                iter->second.c_str(),
-                iter->first.c_str());
-            Abort(false);
         }
     }
 

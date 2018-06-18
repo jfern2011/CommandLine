@@ -13,7 +13,9 @@
 #include <map>
 #include <string>
 
-#include "util.h"
+#include "abort.h"
+#include "str_util.h"
+#include "traits.h"
 
 /**
  * Class that builds a table of command line options
@@ -124,7 +126,8 @@ class CommandLineOptions
         T value;
     };
 
-    typedef std::unique_ptr< option_base > option_ptr;
+    using option_ptr =
+        std::shared_ptr< option_base >;
 
 public:
 
@@ -180,18 +183,17 @@ public:
         std::string name = Util::trim(Util::to_lower(_name) );
         auto iter = _options.find(name);
 
-        if (iter == _options.end())
-        {
-            std::printf(" no such command line option '%s'\n",
-                name.c_str());
-            Abort(false);
-        }
+        AbortIf(iter == _options.end(), false,
+            "no such command line option '%s'", name.c_str());
 
         const option_ptr& option =
             iter->second;
 
-        value = dynamic_cast<Option<T>*>
-            (option.get())->value;
+        auto ptr =  std::dynamic_pointer_cast<
+            Option<T>>(option);
+
+        AbortIfNot(ptr, false);
+        value = ptr->value;
 
         return true;
     }
@@ -214,17 +216,16 @@ public:
         std::string name = Util::trim(Util::to_lower(_name) );
         auto iter = _options.find(name);
 
-        if (iter == _options.end())
-        {
-            std::printf(" no such command line option '%s'\n",
-                name.c_str());
-            Abort(false);
-        }
+        AbortIf(iter == _options.end(), false,
+            "no such command line option '%s'", name.c_str());
 
         option_ptr& option = iter->second;
 
-        dynamic_cast<Option<T>*>
-            (option.get())->value = value;
+        auto ptr =  std::dynamic_pointer_cast<
+            Option<T>>(option);
+
+        AbortIfNot(ptr, false);
+        ptr->value = value;
 
         return true;
     }

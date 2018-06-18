@@ -64,8 +64,7 @@ default value overwritten. Continuing the above example,
 
 ## Dependencies
 
-This tool requires abort.h, types.h, and util.h, which can be obtained
-from my other repos.
+None.
 
 ## Contact
 
