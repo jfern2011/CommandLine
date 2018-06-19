@@ -118,7 +118,7 @@ bool CommandLine::get_opt_val(int argc, char** argv,
     types::str_v tokens;
 
     for (int i = 1; i < argc; i++)
-        tokens.push_back(Util::to_lower(Util::trim(argv[i])));
+        tokens.push_back( Util::trim( argv[i] ) );
 
     AbortIf(tokens.size() == 0,
         false);
@@ -340,7 +340,7 @@ bool CommandLine::parse(int argc, char** argv)
         else if (type == "string")
         {
             AbortIfNot(_options.set(iter->first,
-                val), false);
+                iter->second), false);
         }
         else
         {
