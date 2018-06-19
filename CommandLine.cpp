@@ -110,7 +110,7 @@ CommandLine::~CommandLine()
 bool CommandLine::get_opt_val(int argc, char** argv,
             std::map<std::string,std::string>& opt_val)
 {
-    AbortIf(argc == 0, false);
+    AbortIf(argc <= 0, false);
     opt_val.clear();
 
     if (argc < 2) return true;

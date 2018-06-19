@@ -37,7 +37,7 @@ public:
             false);
         AbortIfNot(options.add<double>("double_entry", 2.71, "double option." ),
             false);
-        AbortIfNot(options.add<std::string>("string_entry", "hey", "std::string option."),
+        AbortIfNot(options.add<std::string>("string_entry", "Hey", "std::string option."),
             false);
 
         bool               b;

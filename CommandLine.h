@@ -101,10 +101,13 @@ class CommandLineOptions
          */
         void print() const
         {
-            if (type == "bool")
-                std::printf("\t--%s=[%s]\n", name.c_str(), type.c_str());
+            std::string val; Util::to_string(value, val);
+            if (type == "string")
+                std::printf("\t--%s [%s = '%s']\n", name.c_str(),
+                            type.c_str(), val.c_str());
             else
-                std::printf("\t--%s=<%s>\n", name.c_str(), type.c_str());
+                std::printf("\t--%s [%s = %s]  \n", name.c_str(),
+                            type.c_str(), val.c_str());
 
             std::printf("\t\t%s\n",
                     description.c_str());
