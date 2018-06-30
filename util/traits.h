@@ -10,6 +10,7 @@
 #define __TRAITS_UTIL_H__
 
 #include <string>
+#include <cstdint>
 
 namespace Util
 {
@@ -97,7 +98,8 @@ namespace Util
 	struct is_int16
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ short
+		 * Indicates whether or not the data type is a signed 16-bit
+		 * integer
 		 */
 	    static const bool value = false;
 	};
@@ -105,15 +107,16 @@ namespace Util
 	/**
 	 ******************************************************************
 	 *
-	 * C++ short specialization of \ref is_int16
+	 * std::int16_t specialization of \ref is_int16
 	 *
 	 ******************************************************************
 	 */
 	template <>
-	struct is_int16<short>
+	struct is_int16<std::int16_t>
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ short
+		 * Indicates whether or not the data type is a signed 16-bit
+		 * integer
 		 */
 	    static const bool value =  true;
 	};
@@ -132,7 +135,8 @@ namespace Util
 	struct is_int32
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ int
+		 * Indicates whether or not the data type is a signed 32-bit
+		 * integer
 		 */
 	    static const bool value = false;
 	};
@@ -140,15 +144,16 @@ namespace Util
 	/**
 	 ******************************************************************
 	 *
-	 * C++ int specialization of \ref is_int32
+	 * std::int32_t specialization of \ref is_int32
 	 *
 	 ******************************************************************
 	 */
 	template <>
-	struct is_int32<int>
+	struct is_int32<std::int32_t>
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ int
+		 * Indicates whether or not the data type is a signed 32-bit
+		 * integer
 		 */
 	    static const bool value =  true;
 	};
@@ -167,7 +172,8 @@ namespace Util
 	struct is_int64
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ long long
+		 * Indicates whether or not the data type is a signed 64-bit
+		 * integer
 		 */
 	    static const bool value = false;
 	};
@@ -175,15 +181,16 @@ namespace Util
 	/**
 	 ******************************************************************
 	 *
-	 * C++ long long specialization of \ref is_int64
+	 * std::int64_t specialization of \ref is_int64
 	 *
 	 ******************************************************************
 	 */
 	template <>
-	struct is_int64<long long>
+	struct is_int64<std::int64_t>
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ long long
+		 * Indicates whether or not the data type is a signed 64-bit
+		 * integer
 		 */
 	    static const bool value =  true;
 	};
@@ -237,8 +244,8 @@ namespace Util
 	struct is_uint16
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ unsigned
-		 * short
+		 * Indicates whether or not the data type is an unsigned 16-bit
+		 * integer
 		 */
 	    static const bool value = false;
 	};
@@ -246,16 +253,16 @@ namespace Util
 	/**
 	 ******************************************************************
 	 *
-	 * C++ unsigned short specialization of \ref is_uint16
+	 * std::uint16_t specialization of \ref is_uint16
 	 *
 	 ******************************************************************
 	 */
 	template <>
-	struct is_uint16<unsigned short>
+	struct is_uint16<std::uint16_t>
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ unsigned
-		 * short
+		 * Indicates whether or not the data type is an unsigned 16-bit
+		 * integer
 		 */
 	    static const bool value =  true;
 	};
@@ -274,7 +281,8 @@ namespace Util
 	struct is_uint32
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ unsigned int
+		 * Indicates whether or not the data type is an unsigned 32-bit
+		 * integer
 		 */
 	    static const bool value = false;
 	};
@@ -282,15 +290,16 @@ namespace Util
 	/**
 	 ******************************************************************
 	 *
-	 * C++ unsigned int specialization of \ref is_uint32
+	 * std::uint32_t specialization of \ref is_uint32
 	 *
 	 ******************************************************************
 	 */
 	template <>
-	struct is_uint32<unsigned int>
+	struct is_uint32<std::uint32_t>
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ unsigned int
+		 * Indicates whether or not the data type is an unsigned 32-bit
+		 * integer
 		 */
 	    static const bool value =  true;
 	};
@@ -309,8 +318,8 @@ namespace Util
 	struct is_uint64
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ unsigned
-		 * long long
+		 * Indicates whether or not the data type is an unsigned 64-bit
+		 * integer
 		 */
 	    static const bool value = false;
 	};
@@ -318,16 +327,16 @@ namespace Util
 	/**
 	 ******************************************************************
 	 *
-	 * C++ unsigned long long specialization of \ref is_uint64
+	 * std::uint64_t specialization of \ref is_uint64
 	 *
 	 ******************************************************************
 	 */
 	template <>
-	struct is_uint64<unsigned long long>
+	struct is_uint64<std::uint64_t>
 	{
 		/**
-		 * Indicates whether or not the data type is a C++ unsigned
-		 * long long
+		 * Indicates whether or not the data type is an unsigned 64-bit
+		 * integer
 		 */
 	    static const bool value =  true;
 	};
