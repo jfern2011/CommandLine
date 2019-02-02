@@ -265,7 +265,7 @@ bool CommandLine::parse(int argc, char** argv)
             char value;
             if (val.size() == 1)
             {
-                value = val[0];
+                value = iter->second[0];
                 AbortIfNot(_options.set(iter->first,
                     value), false);
             }
@@ -296,7 +296,7 @@ bool CommandLine::parse(int argc, char** argv)
 
             if (val.size() == 1)
             {
-                value = val[ 0 ];
+                value = iter->second[ 0 ];
                 AbortIfNot(_options.set(iter->first,value),
                     false);
             }

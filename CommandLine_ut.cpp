@@ -88,7 +88,7 @@ public:
         options.print("test");
 
         const char cmdline1[] =
-            "program --bool_entry --char_entry=p --int16_entry=-32768 "
+            "program --bool_entry --char_entry=P --int16_entry=-32768 "
             "--int32_entry=-2147483648 --uchar_entry=z --uint16_entry=65535 "
             "--uint32_entry=4294967295 --float_entry=3.1234567 "
             "--double_entry=4.123456789101112 --string_entry=what's up dude?!";
