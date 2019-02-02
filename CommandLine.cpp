@@ -7,7 +7,10 @@
  */
 
 #include "CommandLine.h"
-#include "types.h"
+
+#include <cstdint>
+#include <string>
+#include <vector>
 
 /**
  * Constructor
@@ -115,7 +118,7 @@ bool CommandLine::get_opt_val(int argc, char** argv,
 
     if (argc < 2) return true;
 
-    types::str_v tokens;
+    std::vector<std::string> tokens;
 
     for (int i = 1; i < argc; i++)
         tokens.push_back( Util::trim( argv[i] ) );
@@ -276,7 +279,7 @@ bool CommandLine::parse(int argc, char** argv)
         }
         else if (type == "int16")
         {
-            types::int16 value;
+            std::int16_t value;
             AbortIfNot(Util::from_string(val, value), false);
 
             AbortIfNot(_options.set(iter->first, value),
@@ -284,7 +287,7 @@ bool CommandLine::parse(int argc, char** argv)
         }
         else if (type == "int32")
         {
-            types::int32 value;
+            std::int32_t value;
             AbortIfNot(Util::from_string(val, value), false);
 
             AbortIfNot(_options.set(iter->first, value),
@@ -307,7 +310,7 @@ bool CommandLine::parse(int argc, char** argv)
         }
         else if (type == "uint16")
         {
-            types::uint16 value;
+            std::uint16_t value;
             AbortIfNot(Util::from_string(val, value), false);
 
             AbortIfNot(_options.set(iter->first, value),
@@ -315,7 +318,7 @@ bool CommandLine::parse(int argc, char** argv)
         }
         else if (type == "uint32")
         {
-            types::uint32 value;
+            std::uint32_t value;
             AbortIfNot(Util::from_string(val, value), false);
 
             AbortIfNot(_options.set(iter->first, value),
