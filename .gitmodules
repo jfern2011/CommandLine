@@ -1,0 +1,6 @@
+[submodule "abort"]
+	path = abort
+	url = https://github.com/jfern2011/abort.git
+[submodule "util"]
+	path = util
+	url = https://github.com/jfern2011/util.git

@@ -2,7 +2,6 @@
 #include <cstring>
 
 #include "CommandLine.h"
-#include "types.h"
 
 class Test
 {
@@ -93,7 +92,7 @@ public:
             "--uint32_entry=4294967295 --float_entry=3.1234567 "
             "--double_entry=4.123456789101112 --string_entry=what's up dude?!";
 
-        types::str_v tokens;
+        std::vector<std::string> tokens;
         Util::split(cmdline1, tokens);
 
         char* cmdline_raw[32];

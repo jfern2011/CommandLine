@@ -13,9 +13,9 @@
 #include <map>
 #include <string>
 
-#include "abort.h"
-#include "str_util.h"
-#include "traits.h"
+#include "abort/abort.h"
+#include "util/str_util.h"
+#include "util/traits.h"
 
 /**
  * Class that builds a table of command line options
