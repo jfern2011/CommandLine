@@ -1,83 +1,43 @@
 /**
- *  \file   CommandLine.cpp
+ *  \file   commandline.cc
  *  \author Jason Fernandez
  *  \date   11/18/2017
  *
  *  https://github.com/jfern2011/CommandLine
  */
 
-#include "CommandLine.h"
+#include "commandline/commandline.h"
 
-#include <cstdint>
-#include <string>
-#include <vector>
+namespace jfern {
+namespace internal {
+constexpr char TypeToName<bool>::value[];
+constexpr char TypeToName<std::int8_t>::value[];
+constexpr char TypeToName<std::int16_t>::value[];
+constexpr char TypeToName<std::int32_t>::value[];
+constexpr char TypeToName<std::int64_t>::value[];
+constexpr char TypeToName<std::uint8_t>::value[];
+constexpr char TypeToName<std::uint16_t>::value[];
+constexpr char TypeToName<std::uint32_t>::value[];
+constexpr char TypeToName<std::uint64_t>::value[];
+constexpr char TypeToName<float>::value[];
+constexpr char TypeToName<double>::value[];
+constexpr char TypeToName<std::string>::value[];
 
-/**
- * Constructor
- */
-CommandLineOptions::CommandLineOptions()
-{
-}
+}  // namespace internal
+}  // namespace jfern
 
-/**
- * Destructor
- */
-CommandLineOptions::~CommandLineOptions()
-{
-}
+#if 0
+// <algorithm> here?
 
-/**
- * Determine if a command line option exists, namely, if it has been
- * registered with \ref add()
- *
- * @param [in] _name The option to search for
- *
- * @return True if the option exists
- */
-bool CommandLineOptions::exists(const std::string& _name) const
-{
-    std::string name = Util::trim(Util::to_lower(_name));
 
-    return _options.find(name) !=
-        _options.end();
-}
 
-/**
- * Print all command line options for the program to standard output
- *
- * @param[in] prog_name Usually the 1st command line argument, which
- *                      is the executable name
- */
-void CommandLineOptions::print(const char* prog_name) const
-{
-    std::printf("usage: %s [options]\n", prog_name);
-    std::printf("options:\n\n");
 
-    for (auto iter = _options.begin(), end = _options.end();
-         iter != end; ++iter)
-    {
-        iter->second->print();
-    }
 
-    std::fflush(stdout);
-}
 
-/**
- * Common code to create a new option
- *
- * @return True on success
- */
-bool CommandLineOptions::_add_option(const std::string& name) const
-{
-    AbortIf ( name.empty(), false );
 
-    auto iter = _options.find(name);
 
-    AbortIf(iter != _options.end(), false, "duplicate option '%s'",
-        name.c_str());
 
-    return true;
-}
+
 
 /**
  * Constructor
@@ -85,7 +45,7 @@ bool CommandLineOptions::_add_option(const std::string& name) const
  * @param[in] options A \ref CommandLineOptions object. All options
  *                    will be matched against the command line
  */
-CommandLine::CommandLine(CommandLineOptions& options)
+CommandLine::CommandLine(UserOptions<bool>& options)
     : _options(options)
 {
 }
@@ -354,3 +314,4 @@ bool CommandLine::parse(int argc, char** argv)
 
     return true;
 }
+#endif
