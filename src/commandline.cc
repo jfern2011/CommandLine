@@ -24,145 +24,71 @@ constexpr char TypeToName<double>::value[];
 constexpr char TypeToName<std::string>::value[];
 
 }  // namespace internal
-}  // namespace jfern
-
-#if 0
-// <algorithm> here?
-
-
-
-
-
-
-
-
-
-
 
 /**
- * Constructor
- *
- * @param[in] options A \ref CommandLineOptions object. All options
- *                    will be matched against the command line
- */
-CommandLine::CommandLine(UserOptions<bool>& options)
-    : _options(options)
-{
-}
-
-/**
- * Destructor
- */
-CommandLine::~CommandLine()
-{
-}
-
-/**
- * A static function that parses the command line into option, value
- * pairs
+ * A static function that parses the command line into option, value pairs
  *
  * @param[in] argc     Number of command line arguments
  * @param[in] argv     The arguments themselves
- * @param[out] opt_val A mapping from command line option to value.
- *                     If when parsing the command line the
- *                     value is not found, it is mapped to an empty
- *                     string
+ * @param[out] opt_val A mapping from command line option to value. If when
+ *                     parsing the command line the value is not found, it is
+ *                     mapped to an empty string
  *
  * @return True on success
  */
-bool CommandLine::get_opt_val(int argc, char** argv,
-            std::map<std::string,std::string>& opt_val)
-{
-    AbortIf(argc <= 0, false);
+bool CommandLine::GetOptVal(int argc, char** argv,
+                            std::map<std::string, std::string>& opt_val) {
+    if (argc <= 0) return false;
     opt_val.clear();
 
-    if (argc < 2) return true;
+    if (argc <= 1) return true;
 
     std::vector<std::string> tokens;
 
     for (int i = 1; i < argc; i++)
-        tokens.push_back( Util::trim( argv[i] ) );
-
-    AbortIf(tokens.size() == 0,
-        false);
+        tokens.push_back(superstring(argv[i]).trim());
 
     /*
      * Make sure the first entry starts with "--":
      */
-    AbortIf(tokens[0].size() <= 2 ||
-            tokens[0][0] != '-' ||
-            tokens[0][1] != '-', false);
+    if (tokens[0].size() <= 2 || tokens[0][0] != '-' || tokens[0][1] != '-') {
+        return false;
+    }
 
-    std::string cmdline =
-        Util::build_string(tokens, " ");
+    const std::string cmdline =
+        superstring::build(" ", tokens.begin(), tokens.end());
 
-    for (size_t option_ind = 0; option_ind < cmdline.size();
-         option_ind += 2)
-    {
-        option_ind = cmdline.find("--", option_ind);
-        if (option_ind == std::string::npos)
-            break;
+    std::size_t start = 0, equal;
+    std::string subline = cmdline.substr(start, std::string::npos);
+    while (NextPair(subline, &start, &equal)) {
+        start += 2;
+        const std::string name =
+            subline.substr(start, equal-start);
 
         /*
-         * Make sure a stray '--' isn't found
+         * Make sure the option name is not pure whitespace
          */
-        AbortIf(option_ind+2 >= cmdline.size() ||
-                cmdline[option_ind+2] == ' ',
-            false);
+        if (superstring(name).trim().size() == 0)
+            return false;
 
-        bool is_last_opt = false;
+        subline = subline.substr(equal + 1, std::string::npos);
 
-        size_t next_option = cmdline.find("--", option_ind+2);
-        if (next_option == std::string::npos)
-            is_last_opt = true;
+        const std::string value =
+            NextPair(subline, &start, &equal) ? subline.substr(0, start) :
+                                                subline;
 
-        size_t value_ind = cmdline.find('=', option_ind);
+        /*
+         * Make sure the option value is not pure whitespace
+         */
+        if (superstring(value).trim().size() == 0)
+            return false;
 
-        std::string name, value;
-
-        if (value_ind < next_option)
-        {
-            /*
-             * Make sure a stray '=' isn't found
-             */
-            const size_t eq_ind = value_ind;
-            value_ind =
-                cmdline.find_first_not_of( " =", value_ind );
-
-            AbortIfNot(value_ind < next_option,
-                false);
-
-            size_t start = option_ind+2;
-
-            name = cmdline.substr(start, eq_ind - start );
-            start = eq_ind+1;
-
-            if (is_last_opt)
-                value = cmdline.substr(start);
-            else
-                value =
-                    cmdline.substr(start, next_option-start);
-        }
-        else
-        {
-            size_t start = option_ind+2;
-
-            if (is_last_opt)
-                name = cmdline.substr(start);
-            else
-                name = cmdline.substr(start,
-                    next_option-start);
-
-            value = "";
-        }
-
-        opt_val[Util::trim(name)] =
-            Util::trim(value);
+        opt_val[name] = value;
     }
 
     return true;
 }
-
+#if 0
 /**
  *  Parse the command line, assigning a value to each command
  *  line option. The command line should have the form:
@@ -315,3 +241,34 @@ bool CommandLine::parse(int argc, char** argv)
     return true;
 }
 #endif
+
+/**
+ * Helper method that searches for the next pair of "--" and "=" substrings
+ * 
+ * @param[in]  str     The search string
+ * @param[out] p_start Index of the next "--"
+ * @param[out] p_equal Index of the next "="
+ * 
+ * @return True if a pair was found, false otherwise
+ */
+bool CommandLine::NextPair(const std::string& str,
+                           std::size_t* p_start,
+                           std::size_t* p_equal) {
+    std::size_t start = str.find("--");
+    if (start == std::string::npos) return false;
+
+    std::size_t equal = str.find("=", start);
+    if (equal == std::string::npos) return false;
+
+    std::size_t next = start;
+    while (next < equal && next != std::string::npos) {
+        start = next;
+        next = str.find("--", start + 2);
+    }
+
+    *p_start = start;
+    *p_equal = equal;
+
+    return true;
+}
+}  // namespace jfern

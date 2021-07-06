@@ -4,10 +4,59 @@
  *  \date   07/04/2021
  */
 
+#include <array>
+#include <cstring>
+#include <string>
+#include <vector>
+
 #include "gtest/gtest.h"
+#include "superstring/superstring.h"
+
 #include "commandline/commandline.h"
 
 namespace {
+class CommandLineTest : public ::testing::Test {
+public:
+    CommandLineTest() : m_argCount(0) {
+    }
+
+    ~CommandLineTest() {
+        reset();
+    }
+
+    char** CmdlineToArgv(const std::string& cmdline, int* argc) {
+        reset();
+
+        std::vector<std::string> args = jfern::superstring(cmdline).split();
+
+        for (std::size_t i = 0; i < args.size(); i++) {
+            const std::size_t len = args[i].size();
+            m_args[i] = new char[len+1];
+
+            std::memcpy(m_args[i], args[i].c_str(), len);
+            m_args[i][len] = '\0';
+        }
+
+        m_argCount = args.size();
+
+        *argc = static_cast<int>(m_argCount);
+
+        return m_args;
+    }
+
+    void reset() {
+        for (std::size_t i = 0; i < m_argCount; i++)
+            delete[] m_args[i];
+
+        m_argCount = 0;
+    }
+
+protected:
+    std::size_t m_argCount;
+
+    char* m_args[64];
+};
+
 template <typename T>
 class UserOptionsTest : public ::testing::Test {
  public:
@@ -354,6 +403,42 @@ TYPED_TEST(UserOptionsTest, Delete) {
 
     EXPECT_EQ(jfern::CmdLineError::kDoesNotExist, options.Delete("" ));
     EXPECT_EQ(jfern::CmdLineError::kDoesNotExist, options.Delete(" "));
+}
+
+TEST_F(CommandLineTest, GetOptVal) {
+    std::string cmdline = "program_name"
+                          " --bool_opt=true"
+                          " --i8_opt=i8_value"
+                          " --i16_opt=i16_value"
+                          " --i32_opt=i32_value"
+                          " --i64_opt=i64_value"
+                          " --u8_opt=u8_value"
+                          " --u16_opt=u16_value"
+                          " --u32_opt=u32_value"
+                          " --u64_opt=u64_value"
+                          " --float_opt=float_value"
+                          " --double_opt=double_value"
+                          " --string_opt=string_value";
+
+    int argc;
+    char** argv = CmdlineToArgv(cmdline, &argc);
+
+    std::map<std::string, std::string> opt2val;
+    ASSERT_TRUE(jfern::CommandLine::GetOptVal(argc, argv, opt2val));
+
+    EXPECT_EQ(opt2val.size(), 12u);
+    EXPECT_EQ(jfern::superstring(opt2val["bool_opt"]).trim(), "true");
+    EXPECT_EQ(jfern::superstring(opt2val["i8_opt"]).trim(), "i8_value");
+    EXPECT_EQ(jfern::superstring(opt2val["i16_opt"]).trim(), "i16_value");
+    EXPECT_EQ(jfern::superstring(opt2val["i32_opt"]).trim(), "i32_value");
+    EXPECT_EQ(jfern::superstring(opt2val["i64_opt"]).trim(), "i64_value");
+    EXPECT_EQ(jfern::superstring(opt2val["u8_opt"]).trim(), "u8_value");
+    EXPECT_EQ(jfern::superstring(opt2val["u16_opt"]).trim(), "u16_value");
+    EXPECT_EQ(jfern::superstring(opt2val["u32_opt"]).trim(), "u32_value");
+    EXPECT_EQ(jfern::superstring(opt2val["u64_opt"]).trim(), "u64_value");
+    EXPECT_EQ(jfern::superstring(opt2val["float_opt"]).trim(), "float_value");
+    EXPECT_EQ(jfern::superstring(opt2val["double_opt"]).trim(), "double_value");
+    EXPECT_EQ(jfern::superstring(opt2val["string_opt"]).trim(), "string_value");
 }
 
 }  // namespace

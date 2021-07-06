@@ -118,11 +118,12 @@ inline std::string ToString<std::string>(const std::string& value) {
  * Error codes returned by this library
  */
 enum class CmdLineError {
-    kDoesNotExist,  ///< No option exists with this name
-    kDuplicate,     ///< Duplicate option name
-    kEmptyName,     ///< Option name is an empty string
-    kWrongType,     ///< Option has a different type
-    kSuccess        ///< Completed successfully
+    kDoesNotExist,    ///< No option exists with this name
+    kDuplicate,       ///< Duplicate option name
+    kEmptyName,       ///< Option name is an empty string
+    kInvalidCmdLine,  ///< Command line is ill-formed
+    kWrongType,       ///< Option has a different type
+    kSuccess          ///< Completed successfully
 };
 
 /**
@@ -327,18 +328,16 @@ using CommandLineOptions = UserOptions<bool,
                                        std::string>;
 
 /**
- * A class that parses the command line and maintains a record of
- * options
- *
- * @note <getopt.h> is NOT portable
+ * A class that parses the command line and maintains a record of options. Only
+ * supports long options
  */
-class CommandLine
-{
-
+class CommandLine {
 public:
 
-    CommandLine(UserOptions<bool>& options);
+    explicit CommandLine(const CommandLineOptions& options);
     ~CommandLine();
+
+
 #if 0
     /**
      * Retrieve the value of a command line option. Either this is
@@ -363,14 +362,18 @@ public:
 #endif
     bool parse(int argc, char** argv);
 
-    static bool get_opt_val(int argc, char** argv,
-            std::map<std::string,std::string>& opt_val);
-
     CommandLine(const CommandLine& rhs) = delete;
     CommandLine&
       operator=(const CommandLine& rhs) = delete;
 
+    static bool GetOptVal(int argc, char** argv,
+                          std::map<std::string, std::string>& opt_val);
+
 private:
+    static bool NextPair(const std::string& str,
+                         std::size_t* p_start,
+                         std::size_t* p_equal);
+    
 
     UserOptions<bool>&
         _options;
