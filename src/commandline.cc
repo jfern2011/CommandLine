@@ -30,9 +30,7 @@ constexpr char TypeToName<std::string>::value[];
  *
  * @param[in] argc     Number of command line arguments
  * @param[in] argv     The arguments themselves
- * @param[out] opt_val A mapping from command line option to value. If when
- *                     parsing the command line the value is not found, it is
- *                     mapped to an empty string
+ * @param[out] opt_val A mapping from command line option to value
  *
  * @return True on success
  */
