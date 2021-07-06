@@ -1,6 +1,6 @@
 # CommandLine
 
-A generic command line interpreter
+A generic C++ command line interpreter
 
 ## CommandLineOptions
 
